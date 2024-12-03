@@ -1,0 +1,91 @@
+{
+    "storeInfo": [
+        {
+            "storeName": "NotTarget",
+            "phoneNumber": "123-456-7890",
+            "city": "San Jose",
+            "state": "CA",
+            "cityTaxPercentage": 10.05
+        }
+    ],
+    "productInfo": [
+        {
+            "productCode": "10111",
+            "productName": "Legos",
+            "price": 29.99,
+            "description": "Buildable toy set"
+        },
+        {
+            "productCode": "90464",
+            "productName": "TV",
+            "price": 1099.99,
+            "description": "60\" LG television"
+        },
+        {
+            "productCode": "90789",
+            "productName": "Electric Toothbrush",
+            "price": 59.99,
+            "description": "A brush with bristles to clean your teeth"
+        },
+        {
+            "productCode": "20222",
+            "productName": "College-Ruled Notebook",
+            "price": 3.49,
+            "description": "100-page lined paper book"
+        },
+        {
+            "productCode": "20224",
+            "productName": "Pencil",
+            "price": 0.99,
+            "description": "Graphite pencil"
+        },
+        {
+            "productCode": "20226",
+            "productName": "Eraser",
+            "price": 0.50,
+            "description": "Rubber eraser"
+        },
+        {
+            "productCode": "10117",
+            "productName": "Risk Board Game",
+            "price": 49.99,
+            "description": "A strategy board game of diplomany"
+        },
+        {
+            "productCode": "30333",
+            "productName": "Razer keyboard",
+            "price": 99.99,
+            "description": "An RGB computer keyboard input device"
+        },
+        {
+            "productCode": "10113",
+            "productName": "RC Helicopter",
+            "price": 59.99,
+            "description": "Remote control toy"
+        },
+        {
+            "productCode": "72701",
+            "productName": "Yeti Bottle",
+            "price": 29.99,
+            "description": "Reusable bottle that moderates fluid temperature"
+        },
+        {
+            "productCode": "30335",
+            "productName": "Apple Airpods",
+            "price": 129.99,
+            "description": "Apple's wireless headphones"
+        },
+        {
+            "productCode": "90921",
+            "productName": "Toilet Paper",
+            "price": 15.99,
+            "description": "Thin, absorbent paper that comes in roles"
+        },
+        {
+            "productCode": "10115",
+            "productName": "Action Figure",
+            "price": 9.99,
+            "description": "A small plastic children's toy"
+        }
+    ]
+}
