@@ -23,7 +23,7 @@ public class Invoice extends JFrame
     private JTextField grandTotalField;
     private JCheckBox applyDiscountCheckBox;
     private JButton printReceiptButton;
-    final private int FRAMEWIDTH = 1000;
+    final private int FRAMEWIDTH = 700; // Set to 1000 if bigger screen
     final private int FRAMEHEIGHT = 800;
 
     // Data storage for receipt
@@ -389,7 +389,7 @@ public class Invoice extends JFrame
     public void setStoreInfo(String storeName, String phoneNumber, String city, String state, double taxPercentage)
     {
         // Set the store information
-        storeInfo = String.format("%-17s %-17s %-10s %-5s $%.2f", storeName, phoneNumber, city, state, taxPercentage);
+        storeInfo = String.format("%-17s %-17s %-10s %-5s %.2f%%", storeName, phoneNumber, city, state, taxPercentage);
 
         // Update the Sales Tax text field
         String salesTaxText = taxPercentage + "% (" + city + ", " + state + ")";

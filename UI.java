@@ -2,13 +2,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileNotFoundException;
+// import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import java.util.Iterator; 
-import java.util.Map; 
+// import java.util.Iterator; 
+// import java.util.Map; 
 // JSON-simple libraries
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -34,10 +34,10 @@ public class UI extends JFrame
     // json data
     private JSONArray productList;
     private JSONArray storeInfo;
-    private JFrame productFrame;
-    private JTextArea productsTextArea;
+    // private JFrame productFrame;
+    // private JTextArea productsTextArea;
 
-    final private int FRAMEWIDTH = 1000;
+    final private int FRAMEWIDTH = 700; // Set to 1000 if on bigger screen
     final private int FRAMEHEIGHT = 800;
 
     /**
