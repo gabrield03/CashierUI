@@ -24,6 +24,8 @@ public class Invoice extends JFrame
     private JTextField grandTotalField;
     private JCheckBox applyDiscountCheckBox;
     private JButton printReceiptButton;
+    private JPanel receiptPanel;
+    private JTextArea receiptArea;
     final private int XPOS = 600;
     final private int YPOS = 0;
     final private int FRAMEWIDTH = 900;
@@ -38,6 +40,7 @@ public class Invoice extends JFrame
     private double taxPercentage;
 
     private String cashierName = "";
+    private boolean cashierWorking = false;
     private ArrayList<String> itemList = new ArrayList<>();
     private double totalBeforeTax = 0.0;
 
@@ -134,7 +137,7 @@ public class Invoice extends JFrame
 
 
         // Panel 3 - Receipt/final sale info
-        JPanel receiptPanel = new JPanel();
+        receiptPanel = new JPanel();
         panel2.setBorder(BorderFactory.createLineBorder(Color.black));
         receiptPanel.setLayout(new BorderLayout());
 
@@ -152,7 +155,58 @@ public class Invoice extends JFrame
              */
             public void actionPerformed(ActionEvent e)
             {
-                updatePriceFields();
+                // Check if cashier has started their shift
+                if (cashierWorking)
+                {
+                    // Check if data has been loaded
+                    if (storeInfo != null)
+                    {
+                        // Make sure discount value isn't empty
+                        if (!discountField.getText().isEmpty())
+                        {
+                            // Try to parse the discount value
+                            try
+                            {
+                                Double discountVal = Double.parseDouble(discountField.getText());
+                                // Check if the discount value is within a valid range
+                                if (!(discountVal > 100 || discountVal < 0))
+                                {
+                                    updatePriceFields();
+                                }
+                                // Discount value outside valid range (0 to 100)
+                                else
+                                {
+                                    applyDiscountCheckBox.setSelected(false);
+                                    JOptionPane.showMessageDialog(null, "Invalid discount value");
+                                    discountField.setText("");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                applyDiscountCheckBox.setSelected(false);
+                                JOptionPane.showMessageDialog(null, "Invalid discount value");
+                            }
+                        }
+                        // Discount value is empty - unselect box and print error msg
+                        else
+                        {
+                            applyDiscountCheckBox.setSelected(false);
+                            JOptionPane.showMessageDialog(null, "No discount entered");
+                        }
+                    }
+                    // No store info - uncheck box and show error message
+                    else
+                    {
+                        applyDiscountCheckBox.setSelected(false);
+                        JOptionPane.showMessageDialog(null, "Store info not loaded");
+                    }
+                }
+                // No cashier is working - uncheck box and show error message
+                else
+                {
+                    applyDiscountCheckBox.setSelected(false);
+                    JOptionPane.showMessageDialog(null, "No cashier has started their shift");
+                }
             }
         });
 
@@ -166,7 +220,16 @@ public class Invoice extends JFrame
              */
             public void actionPerformed(ActionEvent e)
             {
-                generateReceipt(receiptPanel);
+                // Check if cashier has started their shift
+                if (cashierWorking)
+                {
+                    generateReceipt(receiptPanel);
+                }
+                // No cashier working - show error message
+                else
+                {
+                    JOptionPane.showMessageDialog(null, "No cashier has started their shift");
+                }
             }
         });
 
@@ -201,7 +264,7 @@ public class Invoice extends JFrame
      * Remove an item from the invoice list of products
      * @param lineItem - Position of item in list (starting at 1)
      */
-    public boolean removeItem(String lineItem)
+    public void removeItem(String lineItem)
     {
         try
         {
@@ -241,7 +304,6 @@ public class Invoice extends JFrame
             else
             {
                 JOptionPane.showMessageDialog(this, "Invalid line item position");
-                return false;
             }
         }
         // Catch all errors
@@ -249,8 +311,6 @@ public class Invoice extends JFrame
         {
             JOptionPane.showMessageDialog(this, "An error occurred");
         }
-
-        return true;
     }
 
     /**
@@ -283,9 +343,10 @@ public class Invoice extends JFrame
                 double discountRate = Double.parseDouble(discountField.getText()) * .01;
                 discountedAmount = totalBeforeTax * discountRate;
             }
-            // If discount can't be converted to double, print error msg
+            // If discount can't be converted to double, print error msg and uncheck box
             catch (NumberFormatException e)
             {
+                applyDiscountCheckBox.setSelected(false);
                 JOptionPane.showMessageDialog(this, "Invalid discount value");
             }
         }
@@ -310,64 +371,84 @@ public class Invoice extends JFrame
         // Use StringBuilder to create the receipt information
         StringBuilder receipt = new StringBuilder();
 
-        // Add the store info
-        receipt.append("Store Information:\n");
-        receipt.append("\tBusiness: ").append(storeName);
-        receipt.append("\tPhone Number: ").append(storePhoneNumber);
-        receipt.append("\tCity: ").append(storeCity);
-        receipt.append("\tState: ").append(storeState);
-        receipt.append("\tTax: ").append(taxPercentage).append("%\n\n");
-
-        receipt.append("Date/Time of Transaction:\n\t").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"))).append("\n\n");
-
-        // Add the list of products that were added
-        for (String item : itemList) {
-            receipt.append(item).append("\n");
-        }
-
-        // Add all the total prices
-        receipt.append("\nTotal Before Taxes: $").append(preTaxField.getText());
-        receipt.append("\nTotal After Taxes: $").append(taxedField.getText());
-
-        // Check if discount checkbox has been checked
-        if (applyDiscountCheckBox.isSelected())
+        // Check if any products are in the list
+        if (itemList.size() > 0)
         {
-            try {
-                double discountRate = Double.parseDouble(discountField.getText()) * .01;
-                double discountedAmount = totalBeforeTax * discountRate;
-                double totalWithDiscount = Double.parseDouble(taxedField.getText()) - discountedAmount;
-                receipt.append("\nTotal After Discount: $").append(String.format("%.2f", totalWithDiscount));
+            updatePriceFields();
+
+            // Add the store info
+            receipt.append("Store Information:\n");
+            receipt.append("\tBusiness: ").append(storeName);
+            receipt.append("\tPhone Number: ").append(storePhoneNumber);
+            receipt.append("\tCity: ").append(storeCity);
+            receipt.append("\tState: ").append(storeState);
+            receipt.append("\tTax: ").append(taxPercentage).append("%\n\n");
+
+            receipt.append("Date/Time of Transaction:\n\t").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"))).append("\n\n");
+
+            // Add the list of products that were added
+            for (String item : itemList) {
+                receipt.append(item).append("\n");
             }
-            // If discount can't be converted to double, print error msg
-            catch (NumberFormatException e)
+
+            // Add all the total prices
+            receipt.append("\nTotal Before Taxes: $").append(preTaxField.getText());
+            receipt.append("\nTotal After Taxes: $").append(taxedField.getText());
+
+            // Check if discount checkbox has been checked
+            if (applyDiscountCheckBox.isSelected())
             {
-                JOptionPane.showMessageDialog(this, "Invalid discount value");
+                try {
+                    double discountRate = Double.parseDouble(discountField.getText()) * .01;
+                    double discountedAmount = totalBeforeTax * discountRate;
+                    double totalWithDiscount = Double.parseDouble(taxedField.getText()) - discountedAmount;
+                    receipt.append("\nTotal After Discount: $").append(String.format("%.2f", totalWithDiscount));
+                }
+                // If discount can't be converted to double, print error msg
+                catch (NumberFormatException e)
+                {
+                    JOptionPane.showMessageDialog(this, "Invalid discount value");
+                }
             }
+            else
+            {
+                receipt.append("\nTotal After Discount: $").append(discountedField.getText());
+            }
+
+            receipt.append("\n\nGrand Total: $").append(grandTotalField.getText());
+
+            // Add the message and cashier name + thank you message
+            receipt.append("\n\nYour cashier serving you today is ").append(cashierName).append("\n");
+            receipt.append("\nThank you!");
+
+            // Replace panel with receipt info
+            receiptPanel.removeAll();
+
+            // Instantiate a new text area with the receipt info
+            receiptArea = new JTextArea(receipt.toString());
+            receiptArea.setEditable(false);
+            receiptArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+
+
+            // Add a scroll bar in case the receipt is long and update panel to show receipt
+            receiptPanel.add(new JScrollPane(receiptArea), BorderLayout.CENTER);
+            receiptPanel.revalidate();
+            receiptPanel.repaint();
         }
+        // No products in the list - show error message and clear the receipt panel
         else
         {
-            receipt.append("\nTotal After Discount: $").append(discountedField.getText());
+            JOptionPane.showMessageDialog(this, "No items to complete transaction");
+            // Clear the receipt
+            receiptPanel.removeAll();
+            receiptArea = new JTextArea("");
+            receiptArea.setEditable(false);
+
+            // Add a scroll bar in case the receipt is long and update panel to show receipt
+            receiptPanel.add(new JScrollPane(receiptArea), BorderLayout.CENTER);
+            receiptPanel.revalidate();
+            receiptPanel.repaint();
         }
-
-        receipt.append("\n\nGrand Total: $").append(grandTotalField.getText());
-
-        // Add the message and cashier name + thank you message
-        receipt.append("\n\nYour cashier serving you today is ").append(cashierName).append("\n");
-        receipt.append("\nThank you!");
-
-        // Replace panel with receipt info
-        receiptPanel.removeAll();
-
-        // Instantiate a new text area with the receipt info
-        JTextArea receiptArea = new JTextArea(receipt.toString());
-        receiptArea.setEditable(false);
-        receiptArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-
-
-        // Add a scroll bar in case the receipt is long and update panel to show receipt
-        receiptPanel.add(new JScrollPane(receiptArea), BorderLayout.CENTER);
-        receiptPanel.revalidate();
-        receiptPanel.repaint();
     }
 
     /**
@@ -375,10 +456,34 @@ public class Invoice extends JFrame
      */
     public void clearDisplay()
     {
-        itemList.clear();
-        totalBeforeTax = 0.0;
-        updateitemsTextField();
-        updatePriceFields();
+        // Check if store info has been loaded yet (from inventory) - else do nothing
+        if (storeInfo != null)
+        {
+            // Remove products in item list
+            itemList.clear();
+
+            // Remove data from 2nd panel
+            totalBeforeTax = 0.0;
+            updateitemsTextField();
+            updatePriceFields();
+            salesTaxField.setText("");
+            discountField.setText("");
+            applyDiscountCheckBox.setSelected(false);
+
+            // Clear the receipt
+            receiptPanel.removeAll();
+            receiptArea = new JTextArea("");
+            receiptArea.setEditable(false);
+
+            // Add a scroll bar in case the receipt is long and update panel to show receipt
+            receiptPanel.add(new JScrollPane(receiptArea), BorderLayout.CENTER);
+            receiptPanel.revalidate();
+            receiptPanel.repaint();
+        }
+
+        // Set cashier name to nothing either way 
+        setCashierName("");
+        cashierWorking = false;
     }
 
     /**
@@ -411,5 +516,14 @@ public class Invoice extends JFrame
         // Update the Sales Tax text field
         String salesTaxText = taxPerc + "% (" + city + ", " + state + ")";
         salesTaxField.setText(salesTaxText);
+    }
+
+    /**
+     * Set the cashier to working - enable buttons
+     * @param start - start the cashier shift
+     */
+    public void startCashierShift(boolean start)
+    {
+        cashierWorking = true;
     }
 }

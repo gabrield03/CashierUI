@@ -28,6 +28,8 @@ public class UI extends JFrame
     private JTextField quantityTextField;
     private JTextField removeProductTextField;
     private Invoice invoiceFrame;
+    private String cashierName = "";
+    private boolean shiftStarted = false;
 
     // json data
     private JSONArray productList;
@@ -255,27 +257,45 @@ public class UI extends JFrame
              */
             public void actionPerformed(ActionEvent e)
             {
-                String firstName = firstTextField.getText().trim();
-                String lastName = lastTextField.getText().trim();
-                String cashierName = firstName + " " + lastName;
-        
-                // Make sure the cashier entered names in each field
-                if (!firstName.isEmpty() && !lastName.isEmpty())
+                // Check if the cashier has not started their shift yet
+                if (!shiftStarted)
                 {
-                    // Get the date and time when the shift started
-                    String startTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
-                    
-                    // Update the time shift fields and change frame title
-                    startShiftTimeField.setText(startTime);
-                    endShiftTimeField.setText("");
-                    setTitle("Cashier UI: " + cashierName + " logged in");
+                    // Get first and last name
+                    String firstName = firstTextField.getText().trim();
+                    String lastName = lastTextField.getText().trim();
+            
+                    // Make sure the cashier entered names in each field
+                    if (!firstName.isEmpty() && !lastName.isEmpty())
+                    {
+                        // Change names to title case
+                        String fnTitle = firstName.substring(0, 1).toUpperCase() + firstName.substring(1).toLowerCase();
+                        String lnTitle = lastName.substring(0, 1).toUpperCase() + lastName.substring(1).toLowerCase();
+                        cashierName = fnTitle + " " + lnTitle;
 
-                    // Update the cashier name in Invoice class
-                    invoiceFrame.setCashierName(cashierName);
+                        // Get the date and time when the shift started
+                        String startTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
+                        
+                        // Update the time shift fields and change frame title
+                        startShiftTimeField.setText(startTime);
+                        endShiftTimeField.setText("");
+                        setTitle("Cashier UI: " + cashierName + " logged in");
+
+                        // Update the cashier name in Invoice class
+                        invoiceFrame.setCashierName(cashierName);
+
+                        shiftStarted = true;
+
+                        invoiceFrame.startCashierShift(shiftStarted);
+                    }
+                    else
+                    {
+                        JOptionPane.showMessageDialog(null, "Must enter full name");
+                    }
                 }
+                // Cashier has already started their shift - They must end their shift first
                 else
                 {
-                    JOptionPane.showMessageDialog(null, "Must enter full name");
+                    JOptionPane.showMessageDialog(null, "Cashier already started shift");
                 }
             }
         });
@@ -289,25 +309,39 @@ public class UI extends JFrame
              */
             public void actionPerformed(ActionEvent e)
             {
-                // Get the date and time when the shift started
-                String endTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
-                
-                // Update the time shift fields and change frame title
-                endShiftTimeField.setText(endTime);
-                startShiftTimeField.setText("");
-                setTitle("Cashier UI");
+                // Check if the cashier has started their shift
+                if (shiftStarted)
+                {
+                    // Get the date and time when the shift started
+                    String endTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
+                    
+                    // Update the time shift fields and change frame title
+                    endShiftTimeField.setText(endTime);
+                    startShiftTimeField.setText("");
+                    setTitle("Cashier UI");
 
-                // Clear other fields
-                // Clear panel 1 data
-                firstTextField.setText("");
-                lastTextField.setText("");
+                    // Clear other fields
+                    // Clear UI panels 1, 2, and 3 data
+                    firstTextField.setText("");
+                    lastTextField.setText("");
+                    productsTextArea.setText(""); // Panel 2
+                    productCodeTextField.setText("");
+                    quantityTextField.setText("");
+                    removeProductTextField.setText("");
+                    productNumTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+                    productNumTextArea.setText("");
 
-                // Clear panel 3 data
-                productCodeTextField.setText("");
-                quantityTextField.setText("");
+                    // Clear Invoice panels 1, 2 and 3 data
+                    invoiceFrame.clearDisplay();
 
-                // Clear the items in Invoice class
-                invoiceFrame.clearDisplay();
+                    shiftStarted = false;
+                }
+                // Cashier has not started their shift - show error msg
+                else
+                {
+                    JOptionPane.showMessageDialog(null, "No cashier has started their shift");
+      
+                }
             }
         });
 
@@ -322,38 +356,47 @@ public class UI extends JFrame
              */
             public void actionPerformed(ActionEvent e)
             {
-                try
+                // Check if the cashier has started their shift
+                if (shiftStarted)
                 {
-                    // Load the json file and typecast Object to JSONObject
-                    Object obj = new JSONParser().parse(new FileReader("assets/info.json"));
-                    JSONObject jo = (JSONObject) obj;
-        
-                    // Get the productInfo and storeInfo array data
-                    productList = (JSONArray) jo.get("productInfo");
-                    storeInfo = (JSONArray) jo.get("storeInfo");
+                    try
+                    {
+                        // Load the json file and typecast Object to JSONObject
+                        Object obj = new JSONParser().parse(new FileReader("assets/info.json"));
+                        JSONObject jo = (JSONObject) obj;
+            
+                        // Get the productInfo and storeInfo array data
+                        productList = (JSONArray) jo.get("productInfo");
+                        storeInfo = (JSONArray) jo.get("storeInfo");
 
-                    // Get the first (and only) store from storeInfo
-                    JSONObject store = (JSONObject) storeInfo.get(0);
+                        // Get the first (and only) store from storeInfo
+                        JSONObject store = (JSONObject) storeInfo.get(0);
 
-                    // Get all the store details from the store
-                    String storeName = (String) store.get("storeName");
-                    String phoneNumber = (String) store.get("phoneNumber");
-                    String city = (String) store.get("city");
-                    String state = (String) store.get("state");
-                    double taxPercentage = Double.parseDouble(store.get("cityTaxPercentage").toString());
+                        // Get all the store details from the store
+                        String storeName = (String) store.get("storeName");
+                        String phoneNumber = (String) store.get("phoneNumber");
+                        String city = (String) store.get("city");
+                        String state = (String) store.get("state");
+                        double taxPercentage = Double.parseDouble(store.get("cityTaxPercentage").toString());
 
-                    invoiceFrame.setStoreInfo(storeName, phoneNumber, city, state, taxPercentage);
-        
-                    // Show confirmation box
-                    JOptionPane.showMessageDialog(null, "Inventory loaded.");
-                
-
+                        invoiceFrame.setStoreInfo(storeName, phoneNumber, city, state, taxPercentage);
+            
+                        // Show confirmation box
+                        JOptionPane.showMessageDialog(null, "Inventory loaded.");
                     
+
+                        
+                    }
+                    // Show that some error occurred related to the json file
+                    catch (Exception ex)
+                    {
+                        JOptionPane.showMessageDialog(null, "Error with JSON file.");
+                    }
                 }
-                // There was some error
-                catch (Exception ex)
+                // Cashier has not starter their shift - show error msg
+                else
                 {
-                    JOptionPane.showMessageDialog(null, "Error with JSON file.");
+                    JOptionPane.showMessageDialog(null, "No cashier has started their shift");
                 }
             }
         });
@@ -367,33 +410,42 @@ public class UI extends JFrame
              */
             public void actionPerformed(ActionEvent e)
             {
-                // Check if inventory has been loaded - do not permit, if not
-                if (productList == null || productList.isEmpty())
+                // Check if the cashier has started their shift
+                if (shiftStarted)
                 {
-                    JOptionPane.showMessageDialog(null, "Inventory hasn't been loaded.");
-                    return;
+                    // Check if inventory has been loaded - do not permit, if not
+                    if (productList == null || productList.isEmpty())
+                    {
+                        JOptionPane.showMessageDialog(null, "Inventory hasn't been loaded.");
+                        return;
+                    }
+
+                    // Set the font to have consistent width (formatting)
+                    productsTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+            
+                    // Output formatting for list of all products
+                    StringBuilder allProducts = new StringBuilder();
+                    allProducts.append(String.format("%-8s %-25s %-11s %-30s\n", "Code", "Product Name", "Price", "Description"));
+
+                    // Iterate over productList to get the productInfo
+                    for (Object obj : productList) {
+                        JSONObject product = (JSONObject) obj;
+                        String code = (String) product.get("productCode");
+                        String name = (String) product.get("productName");
+                        double price = (Double) product.get("price");
+                        String description = (String) product.get("description");
+
+                        allProducts.append(String.format("%-8s %-25s $%-10.2f %-30s\n", code, name, price, description));
+                    }
+
+                    // Add the data to the text area
+                    productsTextArea.setText(allProducts.toString());
                 }
-
-                // Set the font to have consistent width (formatting)
-                productsTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        
-                // Output formatting for list of all products
-                StringBuilder allProducts = new StringBuilder();
-                allProducts.append(String.format("%-8s %-25s %-11s %-30s\n", "Code", "Product Name", "Price", "Description"));
-
-                // Iterate over productList to get the productInfo
-                for (Object obj : productList) {
-                    JSONObject product = (JSONObject) obj;
-                    String code = (String) product.get("productCode");
-                    String name = (String) product.get("productName");
-                    double price = (Double) product.get("price");
-                    String description = (String) product.get("description");
-
-                    allProducts.append(String.format("%-8s %-25s $%-10.2f %-30s\n", code, name, price, description));
+                // Cashier has not started their shift - show error msg
+                else
+                {
+                    JOptionPane.showMessageDialog(null, "No cashier has started their shift");
                 }
-
-                // Add the data to the text area
-                productsTextArea.setText(allProducts.toString());
             }
         });
 
@@ -406,7 +458,16 @@ public class UI extends JFrame
              */
             public void actionPerformed(ActionEvent e)
             {
-                productsTextArea.setText("");
+                // Check if the cashier has started their shift
+                if (shiftStarted)
+                {
+                    productsTextArea.setText("");
+                }
+                // Cashier has not started their shift - show error msg
+                else
+                {
+                    JOptionPane.showMessageDialog(null, "No cashier has started their shift");
+                }
             }
         });
 
@@ -421,47 +482,57 @@ public class UI extends JFrame
              */
             public void actionPerformed(ActionEvent e)
             {
-                String productCode = productCodeTextField.getText().trim();
-                String quantityText = quantityTextField.getText().trim();
+                // Check if the cashier has started their shift
+                if (shiftStarted)
+                {
+                    String productCode = productCodeTextField.getText().trim();
+                    String quantityText = quantityTextField.getText().trim();
 
-                // Check for missing values
-                if (productCode.isEmpty() || quantityText.isEmpty()) {
-                    JOptionPane.showMessageDialog(null, "Product code and quantity can't be empty");
-                    return;
-                }
-
-                try {
-                    int quantity = Integer.parseInt(quantityText);
-
-                    // Find the product number in the JSON list by iterating over productList
-                    JSONObject selectedProduct = null;
-                    for (Object obj : productList)
-                    {
-                        JSONObject product = (JSONObject) obj;
-                        if (productCode.equals(product.get("productCode")))
-                        {
-                            selectedProduct = product;
-                            break;
-                        }
-                    }
-
-                    // Incorrect product code entered
-                    if (selectedProduct == null)
-                    {
-                        JOptionPane.showMessageDialog(null, "The product code entered does not exist");
+                    // Check for missing values
+                    if (productCode.isEmpty() || quantityText.isEmpty()) {
+                        JOptionPane.showMessageDialog(null, "Product code and quantity can't be empty");
                         return;
                     }
 
-                    // Get product details
-                    String productName = (String) selectedProduct.get("productName");
-                    double price = (Double) selectedProduct.get("price");
+                    try {
+                        int quantity = Integer.parseInt(quantityText);
 
-                    // Add the product to the invoice
-                    invoiceFrame.addItem(productName, quantity, price);
+                        // Find the product number in the JSON list by iterating over productList
+                        JSONObject selectedProduct = null;
+                        for (Object obj : productList)
+                        {
+                            JSONObject product = (JSONObject) obj;
+                            if (productCode.equals(product.get("productCode")))
+                            {
+                                selectedProduct = product;
+                                break;
+                            }
+                        }
+
+                        // Incorrect product code entered
+                        if (selectedProduct == null)
+                        {
+                            JOptionPane.showMessageDialog(null, "The product code entered does not exist");
+                            return;
+                        }
+
+                        // Get product details
+                        String productName = (String) selectedProduct.get("productName");
+                        double price = (Double) selectedProduct.get("price");
+
+                        // Add the product to the invoice
+                        invoiceFrame.addItem(productName, quantity, price);
+                    }
+                    // Show error msg related to invalid quantity field
+                    catch (NumberFormatException ex)
+                    {
+                        JOptionPane.showMessageDialog(null, "Invalid quantity format");
+                    }
                 }
-                catch (NumberFormatException ex)
+                // Cashier has not started their shift - show error msg
+                else
                 {
-                    JOptionPane.showMessageDialog(null, "Invalid quantity format");
+                    JOptionPane.showMessageDialog(null, "No cashier has started their shift");
                 }
             }
         });
@@ -475,7 +546,16 @@ public class UI extends JFrame
              */
             public void actionPerformed(ActionEvent e)
             {
-                boolean success = invoiceFrame.removeItem(removeProductTextField.getText().trim());
+                // Check if the cashier has started their shift
+                if (shiftStarted)
+                {
+                    invoiceFrame.removeItem(removeProductTextField.getText().trim());
+                }
+                // Cashier has not started their shift - show error msg
+                else
+                {
+                    JOptionPane.showMessageDialog(null, "No cashier has started their shift");
+                }
             }
         });
 
@@ -488,46 +568,56 @@ public class UI extends JFrame
              */
             public void actionPerformed(ActionEvent e)
             {
-                // Get the product code from the text field
-                String inputCode = productCodeTextField.getText().trim();
-
-                // Check if the inputCode is empty
-                if (inputCode.isEmpty())
+                // Check if the cashier has started their shift
+                if (shiftStarted)
                 {
-                    JOptionPane.showMessageDialog(null, "No product code entered");
-                    return;
-                }
+                    // Get the product code from the text field
+                    String inputCode = productCodeTextField.getText().trim();
 
-                StringBuilder matchingProducts = new StringBuilder();
-
-                // Iterate through  productList
-                for (Object obj : productList)
-                {
-                    JSONObject product = (JSONObject) obj;
-                    String productCode = (String) product.get("productCode");
-
-                    // Check if given product code matches the input code
-                    if (productCode.startsWith(inputCode))
+                    // Check if the inputCode is empty
+                    if (inputCode.isEmpty())
                     {
-                        // Print all product details, if the code matches or partially matches
-                        matchingProducts.append(String.format("%-8s %-25s $%-11s %-30s\n",
-                            product.get("productCode"),
-                            product.get("productName"),
-                            product.get("price"),
-                            product.get("description")
-                        ));
+                        JOptionPane.showMessageDialog(null, "No product code entered");
+                        return;
+                    }
+
+                    StringBuilder matchingProducts = new StringBuilder();
+
+                    // Iterate through  productList
+                    for (Object obj : productList)
+                    {
+                        JSONObject product = (JSONObject) obj;
+                        String productCode = (String) product.get("productCode");
+
+                        // Check if given product code matches the input code
+                        if (productCode.startsWith(inputCode))
+                        {
+                            // Print all product details, if the code matches or partially matches
+                            matchingProducts.append(String.format("%-8s %-25s $%-11s %-30s\n",
+                                product.get("productCode"),
+                                product.get("productName"),
+                                product.get("price"),
+                                product.get("description")
+                            ));
+                        }
+                    }
+
+                    // Display the results in the text area
+                    if (matchingProducts.length() > 0)
+                    {
+                        productNumTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+                        productNumTextArea.setText(matchingProducts.toString());
+                    }
+                    // Did not find any matching product code numbers
+                    else
+                    {
+                        productNumTextArea.setText("No matches found");
                     }
                 }
-
-                // Display the results in the text area
-                if (matchingProducts.length() > 0)
-                {
-                    productNumTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-                    productNumTextArea.setText(matchingProducts.toString());
-                }
+                // Cashier has not started their shift - show error msg
                 else
                 {
-                    productNumTextArea.setText("No matches found");
+                    JOptionPane.showMessageDialog(null, "No cashier has started their shift");
                 }
             }
         });
