@@ -425,7 +425,7 @@ public class UI extends JFrame
             
                     // Output formatting for list of all products
                     StringBuilder allProducts = new StringBuilder();
-                    allProducts.append(String.format("%-8s %-25s %-11s %-30s\n", "Code", "Product Name", "Price", "Description"));
+                    allProducts.append(String.format("%-8s %-25s %-11s %-30s\n\n", "CODE", "PRODUCT NAME", "PRICE", "DESCRIPTION"));
 
                     // Iterate over productList to get the productInfo
                     for (Object obj : productList) {
@@ -583,6 +583,9 @@ public class UI extends JFrame
 
                     StringBuilder matchingProducts = new StringBuilder();
 
+                    String header = String.format("%-8s %-25s %-12s %-30s\n\n", "CODE", "PRODUCT NAME", "PRICE", "DESCRIPTION");
+                    matchingProducts.append(header);
+
                     // Iterate through  productList
                     for (Object obj : productList)
                     {
@@ -603,7 +606,7 @@ public class UI extends JFrame
                     }
 
                     // Display the results in the text area
-                    if (matchingProducts.length() > 0)
+                    if (matchingProducts.length() - header.length() > 0)
                     {
                         productNumTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
                         productNumTextArea.setText(matchingProducts.toString());
