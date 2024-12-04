@@ -24,12 +24,19 @@ public class Invoice extends JFrame
     private JTextField grandTotalField;
     private JCheckBox applyDiscountCheckBox;
     private JButton printReceiptButton;
-    final private int FRAMEWIDTHUI = 700; // Can set to 1000 if bigger screen
-    final private int FRAMEWIDTH = 800;
+    final private int XPOS = 600;
+    final private int YPOS = 0;
+    final private int FRAMEWIDTH = 900;
     final private int FRAMEHEIGHT = 800;
 
     // Data storage for receipt
     private String storeInfo;
+    private String storeName;
+    private String storePhoneNumber;
+    private String storeCity;
+    private String storeState;
+    private double taxPercentage;
+
     private String cashierName = "";
     private ArrayList<String> itemList = new ArrayList<>();
     private double totalBeforeTax = 0.0;
@@ -41,7 +48,7 @@ public class Invoice extends JFrame
 
         // Set the frame properties
         setTitle("Invoice");
-        setBounds(FRAMEWIDTHUI, 0, FRAMEWIDTH, FRAMEHEIGHT);
+        setBounds(XPOS, YPOS, FRAMEWIDTH, FRAMEHEIGHT);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new GridLayout(3, 1));
 
@@ -100,11 +107,11 @@ public class Invoice extends JFrame
         discountedField.setEditable(false);
 
         // Add the fields to the panel
-        totalsPanel.add(new JLabel("Total Before Taxes:"));
+        totalsPanel.add(new JLabel("Total Before Taxes: $"));
         totalsPanel.add(preTaxField);
-        totalsPanel.add(new JLabel("Total After Taxes:"));
+        totalsPanel.add(new JLabel("Total After Taxes: $"));
         totalsPanel.add(taxedField);
-        totalsPanel.add(new JLabel("Total After Discount:"));
+        totalsPanel.add(new JLabel("Total After Discount: $"));
         totalsPanel.add(discountedField);
 
         // Grand total and receipt printing row
@@ -116,7 +123,7 @@ public class Invoice extends JFrame
         printReceiptButton = new JButton("Print Receipt");
 
         // Add the grand total field to the panel
-        grandTotReceiptPanel.add(new JLabel("Grand Total:"));
+        grandTotReceiptPanel.add(new JLabel("Grand Total: $"));
         grandTotReceiptPanel.add(grandTotalField);
 
         // Add the 3 panels in panel 2 to panel 2
@@ -178,7 +185,7 @@ public class Invoice extends JFrame
         price *= quantity;
 
         // Format the text in the text area for each product description
-        String item = String.format("Name: %-17s Quantity: %-11s Price: $%.2f", itemName, quantity, price);   
+        String item = String.format("Name: %-25s Quantity: %-11s Price: $%.2f", itemName, quantity, price);   
         // Add the item to the list of products
         itemList.add(item);
         
@@ -304,10 +311,14 @@ public class Invoice extends JFrame
         StringBuilder receipt = new StringBuilder();
 
         // Add the store info
-        receipt.append("Store Information: ").append(storeInfo).append("\n");
+        receipt.append("Store Information:\n");
+        receipt.append("\tBusiness: ").append(storeName);
+        receipt.append("\tPhone Number: ").append(storePhoneNumber);
+        receipt.append("\tCity: ").append(storeCity);
+        receipt.append("\tState: ").append(storeState);
+        receipt.append("\tTax: ").append(taxPercentage).append("%\n\n");
 
-
-        receipt.append("Date of Transaction: ").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"))).append("\n\n");
+        receipt.append("Date/Time of Transaction:\n\t").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"))).append("\n\n");
 
         // Add the list of products that were added
         for (String item : itemList) {
@@ -338,11 +349,11 @@ public class Invoice extends JFrame
             receipt.append("\nTotal After Discount: $").append(discountedField.getText());
         }
 
-        receipt.append("\nGrand Total: $").append(grandTotalField.getText());
+        receipt.append("\n\nGrand Total: $").append(grandTotalField.getText());
 
         // Add the message and cashier name + thank you message
         receipt.append("\n\nYour cashier serving you today is ").append(cashierName).append("\n");
-        receipt.append("Thank you!");
+        receipt.append("\nThank you!");
 
         // Replace panel with receipt info
         receiptPanel.removeAll();
@@ -387,13 +398,18 @@ public class Invoice extends JFrame
      * @param state - State the store resides in
      * @param taxPercentage - Tax percentage of the city
      */
-    public void setStoreInfo(String storeName, String phoneNumber, String city, String state, double taxPercentage)
+    public void setStoreInfo(String name, String phoneNumber, String city, String state, double taxPerc)
     {
         // Set the store information
-        storeInfo = String.format("%-17s %-17s %-10s %-5s %.2f%%", storeName, phoneNumber, city, state, taxPercentage);
+        storeInfo = String.format("%-17s %-17s %-10s %-5s %.2f%%", name, phoneNumber, city, state, taxPerc);
+        storeName = name;
+        storePhoneNumber = phoneNumber;
+        storeCity = city;
+        storeState = state;
+        taxPercentage = taxPerc;
 
         // Update the Sales Tax text field
-        String salesTaxText = taxPercentage + "% (" + city + ", " + state + ")";
+        String salesTaxText = taxPerc + "% (" + city + ", " + state + ")";
         salesTaxField.setText(salesTaxText);
     }
 }
