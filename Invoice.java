@@ -1,3 +1,4 @@
+// Libraries
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -23,7 +24,8 @@ public class Invoice extends JFrame
     private JTextField grandTotalField;
     private JCheckBox applyDiscountCheckBox;
     private JButton printReceiptButton;
-    final private int FRAMEWIDTH = 700; // Set to 1000 if bigger screen
+    final private int FRAMEWIDTHUI = 700; // Can set to 1000 if bigger screen
+    final private int FRAMEWIDTH = 800;
     final private int FRAMEHEIGHT = 800;
 
     // Data storage for receipt
@@ -39,13 +41,10 @@ public class Invoice extends JFrame
 
         // Set the frame properties
         setTitle("Invoice");
-        setBounds(FRAMEWIDTH, 0, FRAMEWIDTH, FRAMEHEIGHT);
+        setBounds(FRAMEWIDTHUI, 0, FRAMEWIDTH, FRAMEHEIGHT);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new GridLayout(3, 1));
 
-        
-        
-        // itemListPanel.add(itemsTextField);
 
         // Panel 1 - List items that have been added (name, quantity and price)
         // Set this panel's properties/border color
@@ -142,7 +141,7 @@ public class Invoice extends JFrame
         {
             /**
              * Updates the price field when the checkbox is clicked/unclicked
-             * @param e - The clicked button
+             * @param e - The event triggering the action listener (checked the checkbox)
              */
             public void actionPerformed(ActionEvent e)
             {
@@ -156,7 +155,7 @@ public class Invoice extends JFrame
         {
             /**
              * Prints all sales info on button click
-             * @param e - The clicked button
+             * @param e - The event triggering the action listener (clicked Print Receipt)
              */
             public void actionPerformed(ActionEvent e)
             {
@@ -238,7 +237,7 @@ public class Invoice extends JFrame
                 return false;
             }
         }
-        // Catch all thrown errors
+        // Catch all errors
         catch (Exception e)
         {
             JOptionPane.showMessageDialog(this, "An error occurred");
@@ -257,13 +256,16 @@ public class Invoice extends JFrame
         itemsTextField.setText(String.join("\n", itemList));
     }
 
-    // Update price fields based on current totals
     /**
      * Update panel2 price fields
      */
     private void updatePriceFields()
     {
-        double taxRate = 0.1005; // Will get this from json file
+        // Get the taxPercentage from storeInfo
+        String[] parts = storeInfo.split(" ");
+        String val = parts[parts.length - 1].replace("%", "");
+
+        double taxRate = Double.parseDouble(val) * .01;
         double taxAmount = totalBeforeTax * taxRate;
         double discountedAmount = 0.0; // Should stay 0 at the start - cashier enters it
 
@@ -307,7 +309,6 @@ public class Invoice extends JFrame
 
         receipt.append("Date of Transaction: ").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"))).append("\n\n");
 
-        // FIXME: we need to add product code
         // Add the list of products that were added
         for (String item : itemList) {
             receipt.append(item).append("\n");

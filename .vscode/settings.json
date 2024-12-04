@@ -1,6 +1,7 @@
 {
     "java.project.referencedLibraries": [
         "lib/**/*.jar",
-        "/Users/gabriellarot/Desktop/json-simple-1.1.1.jar"
+        "/Users/gabriellarot/Desktop/json-simple-1.1.1.jar",
+        "json-simple-1.1.1.jar"
     ]
 }

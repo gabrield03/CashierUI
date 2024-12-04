@@ -1,14 +1,12 @@
+// Libraries
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-// import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-// import java.util.Iterator; 
-// import java.util.Map; 
 // JSON-simple libraries
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -37,7 +35,7 @@ public class UI extends JFrame
     // private JFrame productFrame;
     // private JTextArea productsTextArea;
 
-    final private int FRAMEWIDTH = 700; // Set to 1000 if on bigger screen
+    final private int FRAMEWIDTH = 700; // Can set to 1000 if on bigger screen
     final private int FRAMEHEIGHT = 800;
 
     /**
@@ -236,9 +234,6 @@ public class UI extends JFrame
 
 
 
-
-
-
         // Add the 3 panels to the frame
         add(cashierShiftPanel);
         add(inventoryPanel);
@@ -256,7 +251,7 @@ public class UI extends JFrame
         {
             /**
              * Sets the start shift text field and updates frame title
-             * @param e - The clicked button
+             * @param e - The event triggering the action listener (Start Shift button clicked)
              */
             public void actionPerformed(ActionEvent e)
             {
@@ -290,7 +285,7 @@ public class UI extends JFrame
         {
             /**
              * Sets the end shift text field, updates frame title, and clears many fields
-             * @param e - The clicked button
+             * @param e - The event triggering the action listener (End Shift button clicked)
              */
             public void actionPerformed(ActionEvent e)
             {
@@ -323,7 +318,7 @@ public class UI extends JFrame
         {
             /**
              * Loads the json file
-             * @param e - The clicked button
+             * @param e - The event triggering the action listener (Load Inventory button clicked)
              */
             public void actionPerformed(ActionEvent e)
             {
@@ -368,7 +363,7 @@ public class UI extends JFrame
         {
             /**
              * Lists all the products in the json file
-             * @param e - The clicked button
+             * @param e - The event triggering the action listener (Show Products button clicked)
              */
             public void actionPerformed(ActionEvent e)
             {
@@ -408,7 +403,7 @@ public class UI extends JFrame
         {
             /**
              * Closes the text field list of products
-             * @param e - The clicked button
+             * @param e - The event triggering the action listener (Close button clicked)
              */
             public void actionPerformed(ActionEvent e)
             {
@@ -423,7 +418,7 @@ public class UI extends JFrame
         {
             /**
              * Adds an item to the Invoice product list (panel 1) based on product code number
-             * @param e - The clicked button
+             * @param e - The event triggering the action listener (Add button clicked)
              */
             public void actionPerformed(ActionEvent e)
             {
@@ -477,7 +472,7 @@ public class UI extends JFrame
         {
             /**
              * Closes the text field list of products
-             * @param e - The clicked button
+             * @param e - The event triggering the action listener (Remove button clicked)
              */
             public void actionPerformed(ActionEvent e)
             {
@@ -490,7 +485,7 @@ public class UI extends JFrame
         {
             /**
              * Shows all products associated with the product code
-             * @param e - The clicked button
+             * @param e - The event triggering the action listener (Show button clicked)
              */
             public void actionPerformed(ActionEvent e)
             {
