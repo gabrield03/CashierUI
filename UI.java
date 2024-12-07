@@ -331,6 +331,7 @@ public class UI extends JFrame
                     removeProductTextField.setText("");
                     productNumTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
                     productNumTextArea.setText("");
+                    productList = new JSONArray();
 
                     // Clear Invoice panels 1, 2 and 3 data
                     invoiceFrame.clearDisplay();
@@ -619,7 +620,6 @@ public class UI extends JFrame
                         // Code was partial and did not contain a * - show all products
                         else if (inputCode.length() < 5)
                         {
-                            // Print all product details, if the code matches or partially matches
                             matchingProducts.append(String.format("%-8s %-25s $%-11s %-30s\n",
                                 product.get("productCode"),
                                 product.get("productName"),
