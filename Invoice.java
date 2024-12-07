@@ -1,3 +1,8 @@
+/**
+ * Team 4: Gabriel Larot, Harleen Sandhu
+ * Team Project - Cashier UI
+ */
+
 // Libraries
 import javax.swing.*;
 import java.awt.*;
@@ -26,10 +31,10 @@ public class Invoice extends JFrame
     private JButton printReceiptButton;
     private JPanel receiptPanel;
     private JTextArea receiptArea;
-    final private int XPOS = 600;
+    final private int XPOS = 1000;   // Adjust starting x pos to fit monitor
     final private int YPOS = 0;
-    final private int FRAMEWIDTH = 900;
-    final private int FRAMEHEIGHT = 800;
+    final private int FRAMEWIDTH = 1000; // Adjust width to fit monitor
+    final private int FRAMEHEIGHT = 1000;
 
     // Data storage for receipt
     private String storeInfo;

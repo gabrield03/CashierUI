@@ -1,3 +1,8 @@
+/**
+ * Team 4: Gabriel Larot, Harleen Sandhu
+ * Team Project - Cashier UI
+ */
+
 // Libraries
 import javax.swing.*;
 import java.awt.*;
@@ -34,11 +39,9 @@ public class UI extends JFrame
     // json data
     private JSONArray productList;
     private JSONArray storeInfo;
-    // private JFrame productFrame;
-    // private JTextArea productsTextArea;
 
-    final private int FRAMEWIDTH = 700; // Can set to 1000 if on bigger screen
-    final private int FRAMEHEIGHT = 800;
+    final private int FRAMEWIDTH = 1000; // Adjust width to fit monitor
+    final private int FRAMEHEIGHT = 1000;
 
     /**
      * UI constructor that creates the 3 different UI panels and
@@ -235,7 +238,6 @@ public class UI extends JFrame
         productPanel.add(productNumScrollPane, cp3);
 
 
-
         // Add the 3 panels to the frame
         add(cashierShiftPanel);
         add(inventoryPanel);
@@ -244,7 +246,6 @@ public class UI extends JFrame
         // Create the frame for Invoice class
         invoiceFrame = new Invoice("");
         invoiceFrame.setVisible(true);
-
 
 
         // Panel 1 action listeners
@@ -581,6 +582,15 @@ public class UI extends JFrame
                         return;
                     }
 
+                    boolean hasAsterisk = false;
+                    // Check if a partial product code was entered and had a *
+                    if (inputCode.endsWith("*"))
+                    {
+                        // Trim the asterik and flag it
+                        hasAsterisk = true;
+                        inputCode = inputCode.substring(0, inputCode.length() - 1);
+                    }
+
                     StringBuilder matchingProducts = new StringBuilder();
 
                     String header = String.format("%-8s %-25s %-12s %-30s\n\n", "CODE", "PRODUCT NAME", "PRICE", "DESCRIPTION");
@@ -593,7 +603,21 @@ public class UI extends JFrame
                         String productCode = (String) product.get("productCode");
 
                         // Check if given product code matches the input code
-                        if (productCode.startsWith(inputCode))
+                        if (hasAsterisk)
+                        {
+                            if (productCode.startsWith(inputCode))
+                            {
+                                // Add all product details that match or partially match
+                                matchingProducts.append(String.format("%-8s %-25s $%-11s %-30s\n",
+                                    product.get("productCode"),
+                                    product.get("productName"),
+                                    product.get("price"),
+                                    product.get("description")
+                                ));
+                            }
+                        }
+                        // Code was partial and did not contain a * - show all products
+                        else if (inputCode.length() < 5)
                         {
                             // Print all product details, if the code matches or partially matches
                             matchingProducts.append(String.format("%-8s %-25s $%-11s %-30s\n",

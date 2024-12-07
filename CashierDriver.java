@@ -1,4 +1,9 @@
 /**
+ * Team 4: Gabriel Larot, Harleen Sandhu
+ * Team Project - Cashier UI
+ */
+
+/**
  * Driver class for the Cashier UI and Invoice classes
  */
 public class CashierDriver
